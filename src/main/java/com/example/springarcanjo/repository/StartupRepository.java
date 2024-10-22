@@ -11,4 +11,6 @@ public interface StartupRepository extends JpaRepository<Startup, Long> {
 
     // Ordena por número de likes de forma decrescente
     List<Startup> findAllByOrderByVotosDesc();
+
+    List<Startup> findTop3BySetorOrderByVotosDesc(String setor);
 }

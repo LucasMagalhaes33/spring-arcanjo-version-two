@@ -51,5 +51,10 @@ public class StartupController {
         return "redirect:/recomendacao";
     }
 
+    @GetMapping("/{id}")
+    public Startup getStartupById(@PathVariable Long id) {
+        return startupRepository.findById(id).orElse(null);
+    }
+
 
 }

@@ -14,8 +14,15 @@ public class Startup {
 
     private String nome;
     private String setor;
-    private double percentualDisponivel;
-    private double valorProcurado;
+        private double percentualDisponivel;
+        private double valorProcurado;
 
     private int votos;
+
+    @Lob
+    @Column(name = "imagem", columnDefinition = "LONGBLOB")
+    private byte[] imagem;
+
+    @Column(name = "descricao", length = 1000)
+    private String descricao;
 }
