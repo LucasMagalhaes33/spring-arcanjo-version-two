@@ -1,7 +1,10 @@
 package com.example.springarcanjo.controller;
 
+import com.example.springarcanjo.feign.RecomendacaoClient;
 import com.example.springarcanjo.model.Investidor;
+import com.example.springarcanjo.model.RecomendacaoResponse;
 import com.example.springarcanjo.model.Startup;
+import com.example.springarcanjo.model.StartupMetadados;
 import com.example.springarcanjo.repository.InvestidorRepository;
 import com.example.springarcanjo.repository.StartupRepository;
 import com.example.springarcanjo.service.InvestidorService;
@@ -16,6 +19,9 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping(value = {"investidores"})
 public class InvestidorController {
+
+    @Autowired
+    private RecomendacaoClient recomendacaoClient;
 
     @Autowired
     private InvestidorRepository investidorRepository;
@@ -67,14 +73,25 @@ public class InvestidorController {
         return null;
     }
 
-    @GetMapping("/recomendacaoPython")
-    public List<Startup> recomendacaoPython(@RequestParam Long investidorId, Model model) {
-       return recomendacaoService.retornaStartups(investidorId);
-    }
+//    @GetMapping("/recomendacaoPython")
+//    public List<Startup> recomendacaoPython(@RequestParam Long investidorId, Model model) {
+//       return recomendacaoService.retornaStartups(investidorId);
+//    }
 
     @GetMapping("/recomendacao/{id}")
-    public List<Startup> recomendarStartups(@PathVariable("id") Long investidorId) {
-        return investidorService.recomendarStartups(investidorId);
+    public List<Startup> recomendarStartups(@PathVariable("id") Long investidorId, @RequestParam(defaultValue = "3") int n) {
+        // Chama o client Feign para obter a resposta com os IDs das startups recomendadas
+        RecomendacaoResponse response = recomendacaoClient.recomendacao(investidorId);
+
+        // Converte a List<Integer> para List<Long>
+        List<Long> startupIds = response.getStartups_recomendadas()
+                .stream()
+                .map(Long::valueOf)
+                .collect(Collectors.toList());
+
+        // Busca as startups no banco de dados usando os IDs convertidos
+        return startupRepository.findAllById(startupIds);
     }
+
 
 }
